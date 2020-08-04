@@ -1,6 +1,7 @@
-module Lib
-    ( someFunc
-    ) where
+module Lib (minBookshelves) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+type Bookshelf = Int
+type Book = (Int, String)
+
+minBookshelves :: [Bookshelf] -> [Book] -> Maybe Int
+minBookshelves = undefined
