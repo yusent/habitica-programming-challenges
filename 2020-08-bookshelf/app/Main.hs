@@ -4,7 +4,7 @@ import Prelude hiding (getContents)
 import System.Environment (getArgs)
 import System.IO.Strict (getContents)
 import Data.Maybe (fromMaybe)
-import Lib
+import Bookshelf
 
 main :: IO ()
 main = do

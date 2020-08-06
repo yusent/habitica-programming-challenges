@@ -24,7 +24,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Bookshelf
   other-modules:
       Paths_bookshelf
   hs-source-dirs:
@@ -50,7 +50,7 @@ test-suite bookshelf-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      LibSpec
+      BookshelfSpec
       Paths_bookshelf
   hs-source-dirs:
       test

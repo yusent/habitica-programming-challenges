@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Lib (Book(..), createShelf, minBookshelves, minBookshelvesCount) where
+module Bookshelf (Book(..), createShelf, minBookshelves, minBookshelvesCount) where
 
 import Data.List (intercalate, sortOn)
 import Data.Ord (Down(..))
