@@ -1,47 +1,41 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Lib (Book(..), createShelf, minBookshelves) where
+module Lib (Book(..), createShelf, minBookshelves, minBookshelvesCount) where
 
-import Data.List (intercalate)
-import Data.Maybe (isJust, fromJust)
+import Data.List (intercalate, sortOn)
+import Data.Ord (Down(..))
 
-data Shelf = Shelf { capacity :: Int, books :: [Book] }
-data Book = Book { size :: Int, title :: String }
+data Shelf = Shelf { capacity :: Int, books :: [Book] } deriving (Eq, Ord)
+data Book = Book { size :: Int, title :: String } deriving (Eq, Ord)
 
 instance Show Shelf where
   show Shelf{..} = intercalate " | " $ (show . size <$> books) ++ [show capacity ++ " empty"]
 
-minBookshelves :: [Shelf] -> [Book] -> Maybe Int
-minBookshelves shelves books
-  | null arrangements = Nothing
-  | otherwise = Just . minimum $ map length arrangements
-  where
-    arrangements = possibleArrangements shelves books
+minBookshelvesCount :: [Book] -> [Shelf] -> Maybe Int
+minBookshelvesCount books = fmap length . minBookshelves books
 
-possibleArrangements :: [Shelf] -> [Book] -> [[Shelf]]
-possibleArrangements shelves =
-  map (filter hasBooks . fromJust) . filter isJust . possibleArrangementsMaybe shelves
+minBookshelves :: [Book] -> [Shelf] -> Maybe [Shelf]
+minBookshelves books shelves = takeWhile hasBooks <$> minBookshelves' (descSort books) (descSort shelves)
 
-possibleArrangementsMaybe :: [Shelf] -> [Book] -> [Maybe [Shelf]]
-possibleArrangementsMaybe [] [] = [Just []]
-possibleArrangementsMaybe [] _ = [Nothing]
-possibleArrangementsMaybe shelves [] = if valid (head shelves) then [Just shelves] else [Nothing]
-possibleArrangementsMaybe (shelf : otherShelves) books@(book : otherBooks)
-  | valid shelf = possibleArrangementsMaybe (updatedShelf : otherShelves) otherBooks
-               ++ (fmap (shelf :) <$> possibleArrangementsMaybe otherShelves books)
-  | otherwise = [Nothing]
-  where
-    updatedShelf = addBook shelf book
+minBookshelves' :: [Book] -> [Shelf] -> Maybe [Shelf]
+minBookshelves' [] = Just
+minBookshelves' (book : books) = maybe Nothing (minBookshelves' books) . insertBook book
+
+insertBook :: Book -> [Shelf] -> Maybe [Shelf]
+insertBook _ [] = Nothing
+insertBook book (shelf : shelves)
+  | capacity shelf >= size book = Just $ addBook shelf book : shelves
+  | otherwise = (shelf :) <$> insertBook book shelves
 
 addBook :: Shelf -> Book -> Shelf
 addBook shelf@Shelf{..} book@Book{..} =
   shelf { capacity = capacity - size, books = book : books }
-
-valid :: Shelf -> Bool
-valid = (>= 0) . capacity
 
 hasBooks :: Shelf -> Bool
 hasBooks = not . null . books
 
 createShelf :: Int -> Shelf
 createShelf capacity = Shelf { capacity = capacity, books = [] }
+
+descSort :: Ord a => [a] -> [a]
+descSort = sortOn Down
